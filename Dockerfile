@@ -1,46 +1,46 @@
-# Multi-stage Dockerfile for Emend (Fix it. Prove it.)
-# Compatible with Hugging Face Docker Spaces, local deployment, and cloud hosts
-
-# Stage 1: Build the React + TypeScript frontend
+# Stage 1: Build React Frontend
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
+
 COPY frontend/package*.json ./
 RUN npm install
+
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Python backend serving API and built frontend
-FROM python:3.11-slim AS runner
+# Stage 2: Runtime Environment
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/backend:/app
+
 WORKDIR /app
 
-# Install system dependencies including git for deterministic diffs
+# Install system utilities & git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
-    build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies
-COPY backend/requirements.txt backend/
-COPY backend/requirements-core.txt backend/
-COPY backend/requirements-api.txt backend/
+# Install Python backend dependencies
+COPY backend/requirements.txt backend/requirements-core.txt backend/requirements-api.txt backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Copy application source code
-COPY contracts/ contracts/
+# Copy backend code, contracts, and demo repos
 COPY backend/ backend/
+COPY contracts/ contracts/
 COPY demo_repos/ demo_repos/
 
-# Copy built frontend assets from stage 1
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+# Copy built frontend into FastAPI's static assets directory
+COPY --from=frontend-builder /app/frontend/dist /app/backend/emend/api/static
 
-# Setup environment variables
-ENV PYTHONPATH="/app/backend:/app"
-ENV PORT=7860
-ENV RUN_MODE="hosted"
-EXPOSE 7860
+# Initialize git tracking inside demo_repos so working tree resets function properly
+RUN git config --global user.email "emend-agent@hackathon.local" && \
+    git config --global user.name "Emend Agent" && \
+    git init /app && \
+    git add demo_repos/ && \
+    git commit -m "init demo repos"
 
-# Non-root user for security sandbox compliance
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
-
-CMD ["python", "-m", "uvicorn", "emend.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Bind to Railway's dynamic PORT (fallback to 7860 locally)
+CMD ["sh", "-c", "uvicorn emend.api.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
