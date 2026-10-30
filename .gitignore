@@ -1,23 +1,19 @@
-# Environment & Secrets (NEVER COMMIT)
-.env
-.env.local
-.env.*.local
-*.pem
-*.key
-
-# Python Virtual Environments
+# Virtual Environments
 .venv/
-venv/
 env/
+venv/
 ENV/
 env.bak/
 venv.bak/
 
-# Python Bytecode & Cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Distribution / packaging
+.Python
 build/
 develop-eggs/
 dist/
@@ -34,6 +30,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Testing & Coverage Artifacts
 .pytest_cache/
@@ -46,11 +43,23 @@ coverage.xml
 *.cover
 *.py,cover
 .report.json
+pytest_report.json
+
+# Environment variables & secrets (CRITICAL)
+.env
+*.env.local
+.env.local
+.env.*.local
+*.pem
+*.key
 
 # Node / React Frontend Artifacts
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/.turbo/
+.npm
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -69,6 +78,8 @@ pnpm-debug.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
+.vscode/
 .idea/
 *.swp
 *.swo

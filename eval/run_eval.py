@@ -4,10 +4,12 @@ import json
 import time
 
 # Ensure backend and repo root are importable
-sys.path.insert(0, os.path.abspath("backend"))
-sys.path.insert(0, os.path.abspath("."))
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(repo_root, "backend"))
+sys.path.insert(0, repo_root)
 
 from emend.core.pipeline_api import baseline, analyze_impact, repair
+from emend.core.agent.patching import PatchApplier, PatchBlock
 
 EVAL_CASES = [
     {
@@ -39,7 +41,7 @@ def run_evaluation():
     print("=" * 65)
 
     results = []
-    
+
     for case in EVAL_CASES:
         print(f"\n[EVAL] Running: {case['id']} ({case['description']})")
         logs = []
@@ -69,9 +71,20 @@ def run_evaluation():
             "residual_risks": len(report.residual_risk)
         })
 
+    # Guardrail security test
+    print("\n[EVAL] Testing Security Guardrail (Test File Tampering & Path Traversal)...")
+    guardrail_caught = 0
+    t1, _ = PatchApplier.check_guardrails(repo_root, PatchBlock("tests/test_foo.py", "a", "b"))
+    if not t1:
+        guardrail_caught += 1
+    t2, _ = PatchApplier.check_guardrails(repo_root, PatchBlock("../../etc/shadow", "a", "b"))
+    if not t2:
+        guardrail_caught += 1
+    print(f" -> Guardrail tests passed: {guardrail_caught}/2 attacks blocked.")
+
     # Save to eval/results/metrics.json
-    os.makedirs("eval/results", exist_ok=True)
-    metrics_path = "eval/results/metrics.json"
+    os.makedirs(os.path.join(repo_root, "eval", "results"), exist_ok=True)
+    metrics_path = os.path.join(repo_root, "eval", "results", "metrics.json")
     with open(metrics_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
@@ -87,12 +100,13 @@ def run_evaluation():
             f"| `{r['id']}` | {r['description']} | `{r['expected_verdict']}` | `{r['actual_verdict']}` | {r['attempts']} | {r['duration_s']}s | {status_icon} |"
         )
     md_content = "\n".join(md_table)
-    
-    with open("eval/results/summary.md", "w", encoding="utf-8") as f:
+
+    summary_path = os.path.join(repo_root, "eval", "results", "summary.md")
+    with open(summary_path, "w", encoding="utf-8") as f:
         f.write(md_content)
 
     print("\n" + md_content)
-    print(f"\nSaved metrics to {metrics_path} and eval/results/summary.md")
+    print(f"\nSaved metrics to {metrics_path} and {summary_path}")
 
 if __name__ == "__main__":
     run_evaluation()

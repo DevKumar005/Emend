@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  emend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7860:7860"
+    environment:
+      - RUN_MODE=hosted
+      - PORT=7860
+      - MAX_ATTEMPTS=3
+      - TOKEN_BUDGET=60000
+      - NEBIUS_API_KEY=${NEBIUS_API_KEY:-}
+      - MODEL_REPAIR=${MODEL_REPAIR:-nvidia/nemotron-3-super-120b-a12b}
+      - MODEL_FAST=${MODEL_FAST:-nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B}
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
