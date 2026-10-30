@@ -1,3 +1,4 @@
+
 # Stage 1: Build React Frontend
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
@@ -42,5 +43,9 @@ RUN git config --global user.email "emend-agent@hackathon.local" && \
     git add demo_repos/ && \
     git commit -m "init demo repos"
 
+# Non-root user for security sandbox compliance
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
 # Bind to Railway's dynamic PORT (fallback to 7860 locally)
-CMD ["sh", "-c", "uvicorn emend.api.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+CMD ["sh", "-c", "exec uvicorn emend.api.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

@@ -27,9 +27,25 @@ app.include_router(demo.router)
 app.include_router(health.router)
 
 # Serve built frontend if static directory exists (single-container deployment mode)
-frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist"))
-if os.path.exists(frontend_dist):
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+candidate_paths = [
+    os.environ.get("FRONTEND_DIST"),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist")),
+    "/app/frontend/dist",
+    os.path.abspath("frontend/dist"),
+]
+frontend_dist = next(
+    (p for p in candidate_paths if p and os.path.isdir(p) and os.path.exists(os.path.join(p, "index.html"))),
+    None
+)
+
+if frontend_dist:
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
