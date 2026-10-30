@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #f6f8fa;
+    color: #1f2328;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  code, pre, .font-mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+}
+
+/* Authentic Engineering Workspace Background - Neutral, Clean, No AI Gradient Blobs */
+.bg-app-workspace {
+  background-color: #f6f8fa;
+}
+
+/* Crisp Clean Card Surfaces */
+.surface-card {
+  background-color: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(31, 35, 40, 0.04);
+}
+
+.surface-card-hover {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.surface-card-hover:hover {
+  border-color: #8c959f;
+  box-shadow: 0 3px 6px rgba(31, 35, 40, 0.08);
+}
+
+/* Responsive Text Wrapping Utilities */
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Standard GitHub / Developer Light Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f6f8fa;
+}
+::-webkit-scrollbar-thumb {
+  background: #d0d7de;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #afb8c1;
+}
