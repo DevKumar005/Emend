@@ -145,6 +145,15 @@ docker build -t emend .
 docker run --rm -p 7860:7860 --env-file .env emend
 ```
 
+### 5. Deploy to Vercel
+Emend includes native `vercel.json` configuration for one-click deployment to Vercel:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDevKumar005%2FEmend)
+
+1. Import the repository in [Vercel](https://vercel.com/new).
+2. The root `vercel.json` automatically detects the Vite frontend, builds `frontend/dist`, and configures SPA rewrites.
+3. (Optional) Configure `VITE_API_URL` under Project Environment Variables to connect to your live backend.
+
 ---
 
 ## Authors & Credits
