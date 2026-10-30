@@ -1,0 +1,49 @@
+{
+  "changed_symbols": [
+    "billing.utils.round_price",
+    "billing.refunds.compute_refund",
+    "billing.tax.calculate_tax"
+  ],
+  "nodes": [
+    {
+      "id": "billing.utils.round_price",
+      "kind": "function",
+      "file": "billing/utils.py",
+      "lines": [1, 8],
+      "risk": "high",
+      "label": "predicted risk, unverified"
+    },
+    {
+      "id": "billing.refunds.compute_refund",
+      "kind": "function",
+      "file": "billing/refunds.py",
+      "lines": [3, 9],
+      "risk": "high",
+      "label": "predicted risk, unverified"
+    }
+  ],
+  "edges": [
+    {
+      "source": "billing.refunds.compute_refund",
+      "target": "billing.utils.round_price",
+      "kind": "calls"
+    }
+  ],
+  "ranked_tests": [
+    {
+      "id": "tests/test_pricing.py::test_round_half_up_positive",
+      "score": 1.0,
+      "reason": "Direct caller of round_price",
+      "label": "static-predicted"
+    },
+    {
+      "id": "tests/test_refunds.py::test_refund_negative_half",
+      "score": 1.0,
+      "reason": "Calls compute_refund which calls round_price",
+      "label": "static-predicted"
+    }
+  ],
+  "caveats": [
+    "Dynamic dispatch and monkeypatching are not statically resolved."
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "ts": 1730300000.0,
+    "type": "stage",
+    "title": "Baseline Run Started",
+    "payload": {"failing_test": "tests/test_pricing.py::test_round_half_up_positive"}
+  },
+  {
+    "ts": 1730300001.2,
+    "type": "stage",
+    "title": "Impact Analysis Completed",
+    "payload": {"impacted_nodes": 3}
+  },
+  {
+    "ts": 1730300002.5,
+    "type": "test_result",
+    "title": "Regression Detected in Blast Radius!",
+    "payload": {"regressions": ["tests/test_refunds.py::test_refund_negative_half"]}
+  },
+  {
+    "ts": 1730300003.8,
+    "type": "verdict",
+    "title": "Verification Completed: VERIFIED_FIXED",
+    "payload": {"verdict": "VERIFIED_FIXED", "attempts": 2}
+  }
+]

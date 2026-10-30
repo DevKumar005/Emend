@@ -1,0 +1,35 @@
+{
+  "verdict": "VERIFIED_FIXED",
+  "patch": "--- billing/utils.py\n+++ billing/utils.py\n@@ -2,1 +2,2 @@\n-    return round(x, 2)\n+    from decimal import Decimal, ROUND_HALF_UP\n+    return float(Decimal(str(x)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))",
+  "attempts": [
+    {
+      "n": 1,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "rationale": "Naive half-up using int truncation",
+      "patch_blocks": [],
+      "diff": "--- billing/utils.py\n+++ billing/utils.py\n@@ -2,1 +2,1 @@\n- return round(x, 2)\n+ return int(x * 100 + 0.5) / 100.0",
+      "status": "reverted",
+      "regressions": ["tests/test_refunds.py::test_refund_negative_half"],
+      "tokens_in": 120,
+      "tokens_out": 60
+    },
+    {
+      "n": 2,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "rationale": "Symmetric Decimal rounding",
+      "patch_blocks": [],
+      "diff": "--- billing/utils.py\n+++ billing/utils.py\n@@ -2,1 +2,2 @@\n- return round(x, 2)\n+ from decimal import Decimal, ROUND_HALF_UP\n+ return float(Decimal(str(x)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))",
+      "status": "accepted",
+      "regressions": [],
+      "tokens_in": 160,
+      "tokens_out": 85
+    }
+  ],
+  "baseline_summary": {"passed": 2},
+  "residual_risk": [],
+  "metrics": {
+    "time_s": 1.34,
+    "tokens_total": 425,
+    "attempts": 2
+  }
+}
