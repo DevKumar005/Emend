@@ -17,16 +17,19 @@ FORBIDDEN_PATTERNS = [
 ]
 
 def extract_patch_blocks(raw_text: str) -> List[PatchBlock]:
-    """Extracts FILE / SEARCH / REPLACE blocks from model response."""
+    """Extracts FILE / SEARCH / REPLACE blocks from model response, allowing indentation."""
+    normalized_text = raw_text.replace("\r\n", "\n")
     pattern = re.compile(
-        r"FILE:\s*(?P<file>[^\n]+)\s*"
-        r"<<<<<<<\s*SEARCH\s*\n(?P<search>.*?)\n"
-        r"=======\s*\n(?P<replace>.*?)\n"
-        r">>>>>>>\s*REPLACE",
-        re.DOTALL
+        r"^[ \t]*FILE:\s*(?P<file>[^\n]+)\n"
+        r"[ \t]*<{7}\s*SEARCH\s*\n"
+        r"(?P<search>.*?)\n"
+        r"[ \t]*={7}\s*\n"
+        r"(?P<replace>.*?)\n"
+        r"[ \t]*>{7}\s*REPLACE",
+        re.DOTALL | re.MULTILINE
     )
     blocks: List[PatchBlock] = []
-    for match in pattern.finditer(raw_text):
+    for match in pattern.finditer(normalized_text):
         blocks.append(PatchBlock(
             file_path=match.group("file").strip(),
             search=match.group("search"),
@@ -46,7 +49,6 @@ def apply_patch_blocks(repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, 
             if re.search(pattern, norm_path):
                 return False, f"Guardrail violation: Patches may not edit test or config file '{norm_path}'."
 
-    # Apply blocks in memory and verify syntax before writing to disk
     staged_files = {}
     for block in blocks:
         target_path = os.path.abspath(os.path.join(repo_path, block.file_path))
@@ -61,15 +63,23 @@ def apply_patch_blocks(repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, 
         content = staged_files.get(target_path)
         if content is None:
             with open(target_path, "r", encoding="utf-8") as f:
-                content = f.read()
+                content = f.read().replace("\r\n", "\n")
+
+        search_str = block.search.replace("\r\n", "\n")
+        replace_str = block.replace.replace("\r\n", "\n")
 
         # Guardrail 3: Search block match check
-        if block.search not in content:
-            return False, f"SEARCH block was not found in '{block.file_path}'."
-        if content.count(block.search) > 1:
-            return False, f"SEARCH block matches multiple locations in '{block.file_path}'. Provide more surrounding context."
+        if search_str not in content:
+            if search_str.strip() in content and content.count(search_str.strip()) == 1:
+                search_str = search_str.strip()
+                replace_str = replace_str.strip()
+            else:
+                return False, f"SEARCH block was not found in '{block.file_path}'."
 
-        content = content.replace(block.search, block.replace, 1)
+        if content.count(search_str) > 1:
+            return False, f"SEARCH block matches multiple locations in '{block.file_path}'. Provide more context."
+
+        content = content.replace(search_str, replace_str, 1)
         staged_files[target_path] = content
 
     # Guardrail 4: AST syntax verification
@@ -102,5 +112,9 @@ def get_git_diff(repo_path: str) -> str:
         return ""
 
 def reset_working_tree(repo_path: str) -> None:
-    """Discards working tree modifications safely."""
-    subprocess.run(["git", "checkout", "--", "."], cwd=repo_path, capture_output=True)
+    """Discards working tree modifications safely without deleting untracked files."""
+    try:
+        abs_path = os.path.abspath(repo_path)
+        subprocess.run(["git", "checkout", "--", "."], cwd=abs_path, capture_output=True)
+    except Exception:
+        pass

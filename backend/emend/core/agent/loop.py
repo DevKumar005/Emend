@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Callable, List, Optional
+from typing import Callable, List
 from contracts.schemas import (
     ImpactReport,
     RepairAttempt,
@@ -52,10 +52,10 @@ class ProofLoopAgent:
         feedback = ""
         successful_patch = ""
 
-        # Identify baseline passing tests for regression diffing
+        # Baseline passing tests for regression detection
         baseline_passing = {t.id for t in baseline_run.tests if t.outcome == "passed"}
         
-        # Determine source files to feed into the prompt
+        # Source files context
         source_rel_files = list({node.file for node in impact.nodes if "test" not in node.file.lower()})
         source_files = self._read_source_files(source_rel_files)
 
@@ -72,7 +72,7 @@ class ProofLoopAgent:
                 payload={"attempt": attempt_no, "model": self.model_repair}
             ))
 
-            # 1. Generate patch with Nemotron
+            # 1. Generate patch with Nemotron (or offline deterministic simulation)
             prompt = build_repair_prompt(
                 failing_test=failing_test,
                 failure_output=baseline_run.output_tail,
@@ -81,35 +81,13 @@ class ProofLoopAgent:
                 history_feedback=feedback
             )
 
-            # In offline mock mode, produce deterministic behavior for the billing_ripple demo
-            if not self.client.client and "round_price" in str(impact.changed_symbols):
-                if attempt_no == 1:
-                    raw_reply = (
-                        "FILE: billing/utils.py\n"
-                        "<<<<<<< SEARCH\n"
-                        "    return round(x, 2)\n"
-                        "=======\n"
-                        "    return int(x * 100 + 0.5) / 100.0\n"
-                        ">>>>>>> REPLACE"
-                    )
-                else:
-                    raw_reply = (
-                        "FILE: billing/utils.py\n"
-                        "<<<<<<< SEARCH\n"
-                        "    return round(x, 2)\n"
-                        "=======\n"
-                        "    from decimal import Decimal, ROUND_HALF_UP\n"
-                        "    return float(Decimal(str(x)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))\n"
-                        ">>>>>>> REPLACE"
-                    )
-            else:
-                raw_reply = self.client.chat_completion(
-                    model=self.model_repair,
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
+            raw_reply = self.client.chat_completion(
+                model=self.model_repair,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ]
+            )
 
             blocks = extract_patch_blocks(raw_reply)
             reset_working_tree(self.repo_path)
@@ -156,7 +134,7 @@ class ProofLoopAgent:
                 attempts.append(current_attempt)
                 continue
 
-            # 3. Tier 2 Verification: Impact-Ranked Tests
+            # 3. Tier 2 Verification: Impact-Ranked Tests (Blast Radius)
             impact_ids = [t.id for t in impact.ranked_tests if t.id != failing_test]
             regressions = []
             if impact_ids:
@@ -213,19 +191,21 @@ class ProofLoopAgent:
                 attempts.append(current_attempt)
                 continue
 
-            # If all tiers pass without regression, fix is verified
+            # Fix verified across all tiers
             current_attempt.status = "accepted"
             attempts.append(current_attempt)
             successful_patch = diff
             break
 
-        # Generate Final Verdict
         verdict = "VERIFIED_FIXED" if successful_patch else "UNFIXED"
         if not successful_patch and any(a.regressions for a in attempts):
             verdict = "FIXED_WITH_REGRESSIONS"
 
+        # Ensure demo repos are restored cleanly
+        reset_working_tree(self.repo_path)
+
         return FinalReport(
-            verdict=verdict,  # type: ignore
+            verdict=verdict,
             patch=successful_patch,
             attempts=attempts,
             baseline_summary={"passed": len(baseline_passing)},

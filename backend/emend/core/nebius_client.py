@@ -19,9 +19,6 @@ class NebiusClient:
                 base_url=self.base_url,
                 api_key=self.api_key,
             )
-        else:
-            # Running in offline mock mode
-            self.client = None
 
     def chat_completion(
         self,
@@ -62,7 +59,6 @@ class NebiusClient:
 
         if "apply_discount" in user_prompt or "shopcalc" in user_prompt:
             return (
-                "To fix the discount calculation, calculate the percentage discount instead of subtracting raw percent.\n\n"
                 "FILE: shop/utils.py\n"
                 "<<<<<<< SEARCH\n"
                 "    return price - percent\n"
@@ -70,6 +66,30 @@ class NebiusClient:
                 "    return price * (1.0 - percent / 100.0)\n"
                 ">>>>>>> REPLACE"
             )
+
+        if "round_price" in user_prompt or "billing" in user_prompt or "test_pricing" in user_prompt:
+            if "Previous attempt failed" in user_prompt or "Regression" in user_prompt:
+                # Attempt 2: Symmetric decimal rounding fixes pricing and negative refunds
+                return (
+                    "FILE: billing/utils.py\n"
+                    "<<<<<<< SEARCH\n"
+                    "    return round(x, 2)\n"
+                    "=======\n"
+                    "    from decimal import Decimal, ROUND_HALF_UP\n"
+                    "    return float(Decimal(str(x)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))\n"
+                    ">>>>>>> REPLACE"
+                )
+            else:
+                # Attempt 1: Naive fix breaks negative refunds in refunds.py
+                return (
+                    "FILE: billing/utils.py\n"
+                    "<<<<<<< SEARCH\n"
+                    "    return round(x, 2)\n"
+                    "=======\n"
+                    "    return int(x * 100 + 0.5) / 100.0\n"
+                    ">>>>>>> REPLACE"
+                )
+
         return "OK"
 
     def get_token_usage(self) -> Dict[str, int]:

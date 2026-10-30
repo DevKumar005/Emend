@@ -1,0 +1,38 @@
+[
+  {
+    "id": "shopcalc_simple",
+    "repo": "demo_repos/shopcalc",
+    "description": "One-line percentage fix; isolated impact",
+    "expected_verdict": "VERIFIED_FIXED",
+    "actual_verdict": "VERIFIED_FIXED",
+    "passed": true,
+    "attempts": 1,
+    "duration_s": 0.85,
+    "tokens": 180,
+    "residual_risks": 3
+  },
+  {
+    "id": "billing_ripple",
+    "repo": "demo_repos/billing_ripple",
+    "description": "Banker's rounding fix; regression caught on refunds.py before success",
+    "expected_verdict": "VERIFIED_FIXED",
+    "actual_verdict": "UNFIXED",
+    "passed": false,
+    "attempts": 3,
+    "duration_s": 0.36,
+    "tokens": 540,
+    "residual_risks": 0
+  },
+  {
+    "id": "scheduler_hard",
+    "repo": "demo_repos/scheduler_hard",
+    "description": "Missing business rule; honest UNFIXED after 3 attempts",
+    "expected_verdict": "UNFIXED",
+    "actual_verdict": "UNFIXED",
+    "passed": true,
+    "attempts": 3,
+    "duration_s": 0.4,
+    "tokens": 540,
+    "residual_risks": 0
+  }
+]
