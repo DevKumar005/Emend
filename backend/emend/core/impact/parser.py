@@ -1,26 +1,36 @@
 import os
 import ast
-from typing import Dict, List, Any
+from typing import Dict, List, Set, Any, Optional
+
+IGNORE_DIRS = {
+    ".git", ".venv", "venv", "__pycache__", "node_modules", "dist", "build",
+    ".pytest_cache", ".eggs", "*.egg-info", "site-packages"
+}
 
 class CodeSymbol:
-    def __init__(self, qualified_name: str, kind: str, file_path: str, start_line: int, end_line: int):
+    def __init__(self, qualified_name: str, kind: str, file_path: str, start_line: int, end_line: int, name: Optional[str] = None):
         self.qualified_name = qualified_name
         self.kind = kind
         self.file_path = file_path
+        self.start_line = start_line
+        self.end_line = end_line
         self.lines = [start_line, end_line]
+        self.name = name or qualified_name.split(".")[-1]
         self.calls: List[str] = []
+
+# Backward compatibility alias
+SymbolInfo = CodeSymbol
 
 def parse_repository_symbols(repo_path: str) -> Dict[str, CodeSymbol]:
     """Scans all Python files in repo_path and extracts module, class, and function symbols."""
     symbols: Dict[str, CodeSymbol] = {}
-    
+
     for root, dirs, files in os.walk(repo_path):
-        # Ignore virtualenvs, hidden files, and cache dirs
-        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("venv", ".venv", "__pycache__", "site-packages")]
+        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in IGNORE_DIRS]
         for file in files:
             if not file.endswith(".py"):
                 continue
-                
+
             abs_path = os.path.join(root, file)
             rel_path = os.path.relpath(abs_path, repo_path).replace("\\", "/")
             mod_name = rel_path.replace(".py", "").replace("/", ".")
@@ -50,9 +60,9 @@ def parse_repository_symbols(repo_path: str) -> Dict[str, CodeSymbol]:
                         kind="function",
                         file_path=rel_path,
                         start_line=node.lineno,
-                        end_line=getattr(node, "end_lineno", node.lineno)
+                        end_line=getattr(node, "end_lineno", node.lineno),
+                        name=node.name
                     )
-                    # Extract internal function call targets
                     for child in ast.walk(node):
                         if isinstance(child, ast.Call):
                             if isinstance(child.func, ast.Name):
@@ -62,3 +72,19 @@ def parse_repository_symbols(repo_path: str) -> Dict[str, CodeSymbol]:
                     symbols[fn_name] = sym
 
     return symbols
+
+class ASTIndexer:
+    """Class wrapper for backward compatibility."""
+
+    @classmethod
+    def index_repo(cls, repo_path: str) -> Dict[str, Any]:
+        symbols = parse_repository_symbols(repo_path)
+        file_modules = {}
+        for qname, sym in symbols.items():
+            if sym.kind == "module":
+                file_modules[sym.file_path] = qname
+        return {
+            "symbols": symbols,
+            "file_modules": file_modules,
+            "imports": {}
+        }

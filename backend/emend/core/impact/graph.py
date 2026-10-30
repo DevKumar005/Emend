@@ -1,7 +1,7 @@
 import networkx as nx
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 from contracts.schemas import NodeInfo, EdgeInfo
-from emend.core.impact.parser import CodeSymbol
+from emend.core.impact.parser import CodeSymbol, parse_repository_symbols
 
 class DependencyGraph:
     def __init__(self, symbols: Dict[str, CodeSymbol]):
@@ -23,21 +23,19 @@ class DependencyGraph:
     def get_reverse_reachability(self, symbol_name: str) -> Set[str]:
         """Finds all symbols directly or transitively dependent on the changed symbol."""
         if symbol_name not in self.graph:
-            # Fallback matching if relative symbol provided
             matches = [n for n in self.graph.nodes if n.endswith(symbol_name)]
             if matches:
                 symbol_name = matches[0]
             else:
                 return set()
-        
-        # Reverse edges to compute dependents
+
         rev_graph = self.graph.reverse(copy=False)
         try:
             return set(nx.descendants(rev_graph, symbol_name)) | {symbol_name}
         except Exception:
             return {symbol_name}
 
-    def export_contract_views(self, impacted_symbols: Set[str]) -> (List[NodeInfo], List[EdgeInfo]):
+    def export_contract_views(self, impacted_symbols: Set[str]) -> Tuple[List[NodeInfo], List[EdgeInfo]]:
         nodes: List[NodeInfo] = []
         edges: List[EdgeInfo] = []
 
@@ -63,3 +61,33 @@ class DependencyGraph:
             ))
 
         return nodes, edges
+
+class DependencyGraphBuilder:
+    """Class wrapper for backward compatibility."""
+
+    def __init__(self, repo_path: str):
+        self.repo_path = repo_path
+        self.symbols = parse_repository_symbols(repo_path)
+        self.dep_graph = DependencyGraph(self.symbols)
+        self.graph = self.dep_graph.graph
+
+    def get_reverse_dependents(self, symbol_qname: str) -> Set[str]:
+        return self.dep_graph.get_reverse_reachability(symbol_qname)
+
+    def get_direct_callers(self, symbol_qname: str) -> List[str]:
+        if symbol_qname not in self.graph:
+            matches = [n for n in self.graph.nodes if n.endswith(symbol_qname)]
+            if matches:
+                symbol_qname = matches[0]
+            else:
+                return []
+        return list(self.graph.predecessors(symbol_qname))
+
+    def get_direct_callees(self, symbol_qname: str) -> List[str]:
+        if symbol_qname not in self.graph:
+            matches = [n for n in self.graph.nodes if n.endswith(symbol_qname)]
+            if matches:
+                symbol_qname = matches[0]
+            else:
+                return []
+        return list(self.graph.successors(symbol_qname))

@@ -1,6 +1,5 @@
 """
 tavily.py - Optional third-party research tool for library-change failures.
-Eligible for the $3,000 Best Use of Tavily prize.
 Feature-flagged: only active if TAVILY_API_KEY is configured in the environment.
 """
 import os
@@ -9,10 +8,7 @@ import json
 from typing import Optional
 
 def query_library_migration(query: str, max_results: int = 2) -> Optional[str]:
-    """
-    Searches developer documentation and migration notes using Tavily API.
-    Returns a concise summary snippet for prompt injection, or None if disabled.
-    """
+    """Searches developer documentation and migration notes using Tavily API."""
     api_key = os.getenv("TAVILY_API_KEY", "").strip()
     if not api_key:
         return None
@@ -35,14 +31,22 @@ def query_library_migration(query: str, max_results: int = 2) -> Optional[str]:
         with urllib.request.urlopen(req, timeout=5) as response:
             if response.status == 200:
                 data = json.loads(response.read().decode("utf-8"))
-                # Prefer Tavily synthesized direct answer if available
                 if data.get("answer"):
                     return f"Tavily Migration Note: {data['answer']}"
                 results = data.get("results", [])
-                snippets = [f"- {r.get('title')}: {r.get('content')}" for r in results[:2]]
-                return "Tavily Migration Documentation:\n" + "\n".join(snippets)
-    except Exception as e:
-        # Research failures must never crash the core repair loop
+                if results:
+                    snippets = [f"- {r.get('title')}: {r.get('content')}" for r in results[:2]]
+                    return "Tavily Migration Documentation:\n" + "\n".join(snippets)
+    except Exception:
         return None
 
     return None
+
+class TavilyResearcher:
+    """Class wrapper for backward compatibility."""
+
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.getenv("TAVILY_API_KEY", "").strip()
+
+    def search(self, query: str) -> Optional[str]:
+        return query_library_migration(query)

@@ -26,7 +26,14 @@
     }
   ],
   "baseline_summary": {"passed": 2},
-  "residual_risk": [],
+  "residual_risk": [
+    {
+      "symbol": "billing.tax.calculate_tax",
+      "file": "billing/tax.py",
+      "reason": "Function calls modified round_price but has 0 test coverage in the repository.",
+      "callers_count": 1
+    }
+  ],
   "metrics": {
     "time_s": 1.34,
     "tokens_total": 425,

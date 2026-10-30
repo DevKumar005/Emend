@@ -1,0 +1,27 @@
+{
+  "scope": "impacted",
+  "command": "pytest tests/test_billing.py tests/test_refunds.py tests/test_invoice.py --json-report",
+  "exit_code": 0,
+  "duration_s": 0.42,
+  "tests": [
+    {
+      "id": "tests/test_billing.py::test_round_half_up",
+      "outcome": "passed",
+      "duration": 0.04,
+      "message": null
+    },
+    {
+      "id": "tests/test_refunds.py::test_refund_negative_half",
+      "outcome": "passed",
+      "duration": 0.03,
+      "message": null
+    },
+    {
+      "id": "tests/test_invoice.py::test_invoice_total",
+      "outcome": "passed",
+      "duration": 0.05,
+      "message": null
+    }
+  ],
+  "output_tail": "3 passed in 0.42s"
+}

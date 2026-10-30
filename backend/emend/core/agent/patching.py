@@ -2,19 +2,23 @@ import os
 import re
 import ast
 import subprocess
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from contracts.schemas import PatchBlock
 
 FORBIDDEN_PATTERNS = [
     r"^tests/",
+    r"/tests/",
     r"^test_.*\.py$",
+    r"/test_.*\.py$",
     r".*_test\.py$",
     r"conftest\.py$",
     r"pytest\.ini$",
     r"tox\.ini$",
+    r"setup\.py$",
     r"setup\.cfg$",
     r"pyproject\.toml$"
 ]
+FORBIDDEN_FILE_PATTERNS = FORBIDDEN_PATTERNS
 
 def extract_patch_blocks(raw_text: str) -> List[PatchBlock]:
     """Extracts FILE / SEARCH / REPLACE blocks from model response, allowing indentation."""
@@ -42,21 +46,15 @@ def apply_patch_blocks(repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, 
     if not blocks:
         return False, "No valid SEARCH/REPLACE blocks found in model output."
 
-    # Guardrail 1: Disallow modifications to test files or configs
+    # Guardrails validation
     for block in blocks:
-        norm_path = os.path.normpath(block.file_path).replace("\\", "/")
-        for pattern in FORBIDDEN_PATTERNS:
-            if re.search(pattern, norm_path):
-                return False, f"Guardrail violation: Patches may not edit test or config file '{norm_path}'."
+        valid, err = _validate_guardrail(repo_path, block)
+        if not valid:
+            return False, err or "Guardrail validation failed."
 
     staged_files = {}
     for block in blocks:
         target_path = os.path.abspath(os.path.join(repo_path, block.file_path))
-        
-        # Guardrail 2: Path traversal check
-        if not target_path.startswith(os.path.abspath(repo_path)):
-            return False, f"Guardrail violation: Path traversal outside repo '{block.file_path}'."
-
         if not os.path.isfile(target_path):
             return False, f"Target file '{block.file_path}' does not exist in repo."
 
@@ -68,7 +66,7 @@ def apply_patch_blocks(repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, 
         search_str = block.search.replace("\r\n", "\n")
         replace_str = block.replace.replace("\r\n", "\n")
 
-        # Guardrail 3: Search block match check
+        # Guardrail: Search block match check
         if search_str not in content:
             if search_str.strip() in content and content.count(search_str.strip()) == 1:
                 search_str = search_str.strip()
@@ -82,7 +80,7 @@ def apply_patch_blocks(repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, 
         content = content.replace(search_str, replace_str, 1)
         staged_files[target_path] = content
 
-    # Guardrail 4: AST syntax verification
+    # AST syntax verification
     for target_path, content in staged_files.items():
         if target_path.endswith(".py"):
             try:
@@ -96,6 +94,26 @@ def apply_patch_blocks(repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, 
             f.write(content)
 
     return True, "All patches applied successfully."
+
+def _validate_guardrail(repo_path: str, block: PatchBlock) -> Tuple[bool, Optional[str]]:
+    norm_path = os.path.normpath(block.file_path).replace("\\", "/")
+
+    # 1. Reject test tampering
+    for pattern in FORBIDDEN_PATTERNS:
+        if re.search(pattern, norm_path, re.IGNORECASE):
+            return False, f"Guardrail violation: Patches may not edit test or config file '{norm_path}'. Modifying tests or test configs is forbidden."
+
+    # 2. Path traversal check
+    target_path = os.path.abspath(os.path.join(repo_path, block.file_path))
+    if not target_path.startswith(os.path.abspath(repo_path)):
+        return False, f"Guardrail violation: Path traversal outside repo '{block.file_path}'."
+
+    # 3. Size limit: max 60 changed lines
+    replace_lines = len(block.replace.splitlines())
+    if replace_lines > 60:
+        return False, f"Guardrail violation: Patch block exceeds size limit (60 lines). Proposed: {replace_lines} lines."
+
+    return True, None
 
 def get_git_diff(repo_path: str) -> str:
     """Returns the unified diff of unstaged changes."""
@@ -118,3 +136,24 @@ def reset_working_tree(repo_path: str) -> None:
         subprocess.run(["git", "checkout", "--", "."], cwd=abs_path, capture_output=True)
     except Exception:
         pass
+
+class PatchApplier:
+    """Class wrapper for backward compatibility."""
+
+    @staticmethod
+    def parse_blocks(raw_text: str) -> List[PatchBlock]:
+        return extract_patch_blocks(raw_text)
+
+    @staticmethod
+    def check_guardrails(repo_path: str, block: PatchBlock) -> Tuple[bool, Optional[str]]:
+        return _validate_guardrail(repo_path, block)
+
+    @classmethod
+    def apply_blocks(cls, repo_path: str, blocks: List[PatchBlock]) -> Tuple[bool, str, str]:
+        ok, msg = apply_patch_blocks(repo_path, blocks)
+        diff = get_git_diff(repo_path) if ok else ""
+        return ok, msg, diff
+
+    @staticmethod
+    def generate_diff(repo_path: str) -> str:
+        return get_git_diff(repo_path)

@@ -1,3 +1,4 @@
+# Sandbox Dockerfile for Emend's DockerRunner (Isolated testing)
 # Architecture-neutral base for macOS (Apple Silicon arm64) and Linux (amd64)
 FROM python:3.11-slim
 
@@ -5,6 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /sandbox
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install pytest and report extensions
 RUN pip install --no-cache-dir \

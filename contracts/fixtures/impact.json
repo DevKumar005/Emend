@@ -11,7 +11,7 @@
       "file": "billing/utils.py",
       "lines": [1, 8],
       "risk": "high",
-      "label": "predicted risk, unverified"
+      "label": "verified pass"
     },
     {
       "id": "billing.refunds.compute_refund",
@@ -19,12 +19,25 @@
       "file": "billing/refunds.py",
       "lines": [3, 9],
       "risk": "high",
+      "label": "verified pass"
+    },
+    {
+      "id": "billing.tax.calculate_tax",
+      "kind": "function",
+      "file": "billing/tax.py",
+      "lines": [3, 4],
+      "risk": "medium",
       "label": "predicted risk, unverified"
     }
   ],
   "edges": [
     {
       "source": "billing.refunds.compute_refund",
+      "target": "billing.utils.round_price",
+      "kind": "calls"
+    },
+    {
+      "source": "billing.tax.calculate_tax",
       "target": "billing.utils.round_price",
       "kind": "calls"
     }
@@ -44,6 +57,7 @@
     }
   ],
   "caveats": [
-    "Dynamic dispatch and monkeypatching are not statically resolved."
+    "Dynamic dispatch and monkeypatching are not statically resolved.",
+    "Uncovered function billing.tax.calculate_tax was not exercised by any registered test"
   ]
 }
