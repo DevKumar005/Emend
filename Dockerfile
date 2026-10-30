@@ -33,7 +33,8 @@ COPY backend/ backend/
 COPY contracts/ contracts/
 COPY demo_repos/ demo_repos/
 
-# Copy built frontend into FastAPI's static assets directory
+# Copy built frontend assets
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 COPY --from=frontend-builder /app/frontend/dist /app/backend/emend/api/static
 
 # Initialize git tracking inside demo_repos so working tree resets function properly
