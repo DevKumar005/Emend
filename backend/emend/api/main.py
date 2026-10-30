@@ -29,9 +29,12 @@ app.include_router(health.router)
 # Serve built frontend if static directory exists (single-container deployment mode)
 candidate_paths = [
     os.environ.get("FRONTEND_DIST"),
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "static")),
+    "/app/backend/emend/api/static",
     "/app/frontend/dist",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist")),
     os.path.abspath("frontend/dist"),
+    os.path.abspath("backend/emend/api/static"),
 ]
 frontend_dist = next(
     (p for p in candidate_paths if p and os.path.isdir(p) and os.path.exists(os.path.join(p, "index.html"))),

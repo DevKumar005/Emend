@@ -32,6 +32,7 @@ COPY demo_repos/ demo_repos/
 
 # Copy built frontend assets from stage 1
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+COPY --from=frontend-builder /app/frontend/dist /app/backend/emend/api/static
 
 # Setup environment variables
 ENV PYTHONPATH="/app/backend:/app"
