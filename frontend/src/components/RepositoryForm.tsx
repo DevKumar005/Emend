@@ -60,8 +60,6 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
 
   return (
     <div className="space-y-4">
-      
-      {/* 3 Benchmark Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {demoRepos.map((demo) => {
           const isSelected = !isCustomRepo && selectedDemoId === demo.id;
@@ -70,10 +68,10 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
             <div
               key={demo.id}
               onClick={() => handleSelectDemo(demo)}
-              className={`cursor-pointer rounded-lg border p-4 text-left transition relative flex flex-col justify-between ${
+              className={`cursor-pointer rounded-lg border p-4 text-left transition-all relative flex flex-col justify-between ${
                 isSelected
-                  ? 'bg-white border-blue-600 ring-1 ring-blue-600 shadow-2xs'
-                  : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
+                  ? 'bg-white border-blue-600 ring-1 ring-blue-600 shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-slate-300'
               }`}
             >
               <div>
@@ -107,13 +105,12 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
                   </span>
                 </div>
 
-                {/* Direct Action Buttons */}
                 <div className="flex items-center space-x-2 pt-0.5">
                   <button
                     type="button"
                     disabled={isLoading}
                     onClick={(e) => handleDirectLaunch(demo, e)}
-                    className="flex-1 py-1.5 px-3 rounded bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium flex items-center justify-center space-x-1.5 shadow-2xs transition disabled:opacity-50"
+                    className="flex-1 py-1.5 px-3 rounded bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium flex items-center justify-center space-x-1.5 transition-colors disabled:opacity-50 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-900"
                   >
                     <Play className="w-3 h-3 fill-white" />
                     <span>Run Live</span>
@@ -123,21 +120,19 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
                     type="button"
                     disabled={isLoading}
                     onClick={(e) => handleDirectReplay(demo.id, e)}
-                    className="py-1.5 px-3 rounded bg-white hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium flex items-center justify-center space-x-1 border border-slate-300 transition shadow-2xs disabled:opacity-50"
+                    className="py-1.5 px-3 rounded bg-white hover:bg-slate-50 text-slate-700 text-xs font-mono font-medium flex items-center justify-center space-x-1 border border-slate-300 transition-colors disabled:opacity-50 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-600"
                   >
                     <History className="w-3 h-3 text-slate-500" />
                     <span>Replay</span>
                   </button>
                 </div>
               </div>
-
             </div>
           );
         })}
       </div>
 
-      {/* Target Defect Configuration Box */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-slate-200 p-4 shadow-2xs space-y-3.5">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-slate-200 p-4 space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
           <div className="flex items-center space-x-2">
             <Terminal className="w-4 h-4 text-slate-700" />
@@ -166,7 +161,7 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
                 value={customGitUrl}
                 onChange={(e) => setCustomGitUrl(e.target.value)}
                 placeholder="https://github.com/organization/repo.git"
-                className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:border-blue-500 transition"
+                className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               />
             </div>
             <div className="space-y-1">
@@ -176,7 +171,7 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
                 placeholder="main"
-                className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:border-blue-500 transition"
+                className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs font-mono text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               />
             </div>
           </div>
@@ -192,14 +187,14 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
             value={failingTest}
             onChange={(e) => setFailingTest(e.target.value)}
             placeholder="tests/test_file.py::test_failing_function"
-            className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-blue-500 transition"
+            className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
           />
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
           <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-600">
             <span className="text-slate-500 text-xs">Sandbox Environment:</span>
-            <label className="flex items-center space-x-1 cursor-pointer text-slate-800 text-xs">
+            <label className="flex items-center space-x-1.5 cursor-pointer text-slate-800 text-xs">
               <input
                 type="radio"
                 name="run_mode"
@@ -209,7 +204,7 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
               />
               <span>Host Process</span>
             </label>
-            <label className="flex items-center space-x-1 cursor-pointer text-slate-600 hover:text-slate-900 text-xs">
+            <label className="flex items-center space-x-1.5 cursor-pointer text-slate-600 hover:text-slate-900 text-xs">
               <input
                 type="radio"
                 name="run_mode"
@@ -224,7 +219,7 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full sm:w-auto px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs font-mono shadow-2xs transition disabled:opacity-50 flex items-center justify-center space-x-2"
+            className="w-full sm:w-auto px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs font-mono transition-colors disabled:opacity-50 flex items-center justify-center space-x-2 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-600"
           >
             {isLoading ? (
               <>
@@ -239,9 +234,7 @@ export const RepositoryForm: React.FC<RepositoryFormProps> = ({
             )}
           </button>
         </div>
-
       </form>
-
     </div>
   );
 };

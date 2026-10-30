@@ -15,19 +15,19 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
     switch (label) {
       case 'verified pass':
         return {
-          border: 'border-emerald-300 bg-emerald-50/70 text-emerald-800',
+          border: 'border-emerald-300 bg-emerald-50 text-emerald-800',
           dot: 'bg-emerald-500',
           text: 'Verified Pass'
         };
       case 'verified fail':
         return {
-          border: 'border-rose-300 bg-rose-50/70 text-rose-800',
+          border: 'border-rose-300 bg-rose-50 text-rose-800',
           dot: 'bg-rose-500',
           text: 'Verified Fail'
         };
       case 'predicted risk, unverified':
         return {
-          border: 'border-amber-300 bg-amber-50/70 text-amber-800',
+          border: 'border-amber-300 bg-amber-50 text-amber-800',
           dot: 'bg-amber-500',
           text: 'Untested Risk'
         };
@@ -50,10 +50,8 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
     : [];
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 flex flex-col h-[520px] shadow-sm">
-      
-      {/* Header & Graph Legend */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 border-b border-slate-200 bg-slate-50/70 text-xs rounded-t-xl">
+    <div className="bg-white rounded-lg border border-slate-200 flex flex-col h-[520px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 border-b border-slate-200 bg-slate-50/70 text-xs rounded-t-lg">
         <div className="flex items-center space-x-2">
           <GitFork className="w-3.5 h-3.5 text-blue-600" />
           <span className="font-mono font-bold uppercase text-slate-800">
@@ -64,7 +62,6 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
           </span>
         </div>
 
-        {/* Legend */}
         <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
           <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -85,10 +82,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
         </div>
       </div>
 
-      {/* Main Workspace */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        
-        {/* Node Grid View */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2 border-b md:border-b-0 md:border-r border-slate-200 font-mono text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {(impact.nodes || []).map((node) => {
@@ -100,9 +94,9 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
                 <div
                   key={node.id}
                   onClick={() => setSelectedNode(node)}
-                  className={`cursor-pointer p-3 rounded-lg border text-left transition-all ${
+                  className={`cursor-pointer p-3 rounded border text-left transition-colors ${
                     isSelected
-                      ? 'bg-blue-50/50 border-blue-500 shadow-xs ring-1 ring-blue-500'
+                      ? 'bg-blue-50/50 border-blue-500 ring-1 ring-blue-500'
                       : 'bg-white hover:bg-slate-50 border-slate-200'
                   }`}
                 >
@@ -115,7 +109,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
                     </div>
 
                     {isRootDefect && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700 border border-slate-300 uppercase font-bold flex-shrink-0">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300 uppercase font-bold flex-shrink-0">
                         Root
                       </span>
                     )}
@@ -136,7 +130,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
             })}
           </div>
 
-          <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-start space-x-2 mt-2 font-sans">
+          <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-start space-x-2 mt-2 font-sans">
             <Info className="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Static AST reachability maps cross-module callers. Nodes with <strong className="text-amber-700">Untested Risk</strong> lack test coverage in this repo.
@@ -144,7 +138,6 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
           </div>
         </div>
 
-        {/* Selected Node Inspector Sidebar */}
         <div className="w-full md:w-72 bg-slate-50/60 p-4 flex flex-col justify-between overflow-y-auto font-mono text-xs space-y-3">
           {selectedNode ? (
             <div className="space-y-3">
@@ -155,7 +148,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
                 </h4>
               </div>
 
-              <div className="space-y-1.5 text-xs bg-white p-2.5 rounded-lg border border-slate-200">
+              <div className="space-y-1.5 text-xs bg-white p-2.5 rounded border border-slate-200">
                 <div className="flex justify-between py-0.5 border-b border-slate-100 text-slate-600">
                   <span>File:</span>
                   <span className="text-slate-900 truncate max-w-[140px]" title={selectedNode.file}>
@@ -176,7 +169,6 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
                 </div>
               </div>
 
-              {/* Callers */}
               <div>
                 <span className="text-[10px] uppercase text-slate-500 font-bold block mb-1">
                   Downstream Callers ({callers.length})
@@ -194,7 +186,6 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
                 )}
               </div>
 
-              {/* Callees */}
               <div>
                 <span className="text-[10px] uppercase text-slate-500 font-bold block mb-1">
                   Calls ({callees.length})
@@ -222,9 +213,7 @@ export const DependencyGraph: React.FC<DependencyGraphProps> = ({ impact }) => {
             <span>AST Reachability Engine</span>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 };

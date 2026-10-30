@@ -117,7 +117,6 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Clean Authentic Open-Source Footer */}
       <footer className="border-t border-slate-200 bg-white py-4 px-4 sm:px-6 lg:px-8 text-xs text-slate-600 mt-12 font-mono">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-slate-700">
@@ -131,7 +130,7 @@ export const App: React.FC = () => {
               href="https://github.com/DevKumar005/Emend"
               target="_blank"
               rel="noreferrer"
-              className="text-slate-800 hover:text-blue-600 font-medium inline-flex items-center space-x-1 transition"
+              className="text-slate-800 hover:text-blue-600 font-medium inline-flex items-center space-x-1 transition-colors"
             >
               <Github className="w-3.5 h-3.5 text-slate-700" />
               <span>GitHub Repo</span>
@@ -140,12 +139,11 @@ export const App: React.FC = () => {
             <span className="text-slate-300 hidden sm:inline">·</span>
             <span className="text-slate-500 font-medium">Authors:</span>
             
-            {/* 1st Author: Anurag Kumar */}
             <a
               href="https://github.com/anuragkumar80"
               target="_blank"
               rel="noreferrer"
-              className="text-slate-800 hover:text-blue-600 font-semibold inline-flex items-center space-x-1 transition"
+              className="text-slate-800 hover:text-blue-600 font-semibold inline-flex items-center space-x-1 transition-colors"
             >
               <span>Anurag Kumar (@anuragkumar80)</span>
               <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -153,12 +151,11 @@ export const App: React.FC = () => {
 
             <span className="text-slate-300">·</span>
 
-            {/* 2nd Author: Dev Kumar */}
             <a
               href="https://github.com/DevKumar005"
               target="_blank"
               rel="noreferrer"
-              className="text-slate-800 hover:text-blue-600 font-semibold inline-flex items-center space-x-1 transition"
+              className="text-slate-800 hover:text-blue-600 font-semibold inline-flex items-center space-x-1 transition-colors"
             >
               <span>Dev Kumar (@DevKumar005)</span>
               <ExternalLink className="w-3 h-3 text-slate-400" />

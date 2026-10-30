@@ -49,6 +49,21 @@ def test_guardrail_rejects_syntax_errors(tmp_path):
     assert not applied
     assert "SyntaxError" in msg
 
+def test_guardrail_rejects_large_patch(tmp_path):
+    """Guardrail must reject patches exceeding the safe line change threshold."""
+    dummy_file = tmp_path / "app.py"
+    dummy_file.write_text("x = 1\n")
+
+    long_replacement = "\n".join([f"x = {i}" for i in range(70)])
+    block = PatchBlock(
+        file_path="app.py",
+        search="x = 1",
+        replace=long_replacement
+    )
+    applied, msg = apply_patch_blocks(str(tmp_path), [block])
+    assert not applied
+    assert "exceeds size limit" in msg
+
 def test_prompt_injection_delimiter_defense():
     """Verify that search/replace parser ignores injection instructions inside comments."""
     malicious_model_output = """

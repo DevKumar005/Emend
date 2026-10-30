@@ -8,9 +8,7 @@ interface ResidualRiskListProps {
 
 export const ResidualRiskList: React.FC<ResidualRiskListProps> = ({ risks }) => {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 font-mono shadow-sm space-y-3.5">
-      
-      {/* Header */}
+    <div className="bg-white rounded-lg border border-slate-200 p-4 font-mono space-y-3.5">
       <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 text-xs">
         <div className="flex items-center space-x-2">
           <FileWarning className="w-3.5 h-3.5 text-amber-600" />
@@ -28,7 +26,7 @@ export const ResidualRiskList: React.FC<ResidualRiskListProps> = ({ risks }) => 
       </p>
 
       {(!risks || risks.length === 0) ? (
-        <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center space-x-2.5 text-emerald-800 text-xs">
+        <div className="p-3.5 rounded bg-emerald-50 border border-emerald-200 flex items-center space-x-2.5 text-emerald-800 text-xs">
           <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
           <span className="font-sans font-medium">
             Complete test coverage: Every function in the blast radius has unit tests in this repository.
@@ -39,7 +37,7 @@ export const ResidualRiskList: React.FC<ResidualRiskListProps> = ({ risks }) => 
           {risks.map((r, idx) => (
             <div
               key={idx}
-              className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1"
+              className="p-3 rounded bg-slate-50 border border-slate-200 text-xs space-y-1"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-amber-800 font-bold">{r.symbol}</span>
@@ -57,7 +55,6 @@ export const ResidualRiskList: React.FC<ResidualRiskListProps> = ({ risks }) => 
           ))}
         </div>
       )}
-
     </div>
   );
 };

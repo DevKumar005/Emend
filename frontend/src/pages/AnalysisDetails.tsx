@@ -58,12 +58,10 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
       return;
     }
 
-    // 1. Initial Job Poll
     fetchJob(jobId)
       .then(setJob)
       .catch(console.error);
 
-    // 2. Subscribe to live SSE events
     const unsubscribe = subscribeJobEvents(
       jobId,
       (newEvent) => {
@@ -80,7 +78,6 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
       (err) => console.log('SSE status:', err)
     );
 
-    // 3. Periodic Poll check for data ready
     const interval = setInterval(async () => {
       try {
         const currentJob = await fetchJob(jobId);
@@ -95,7 +92,6 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
           clearInterval(interval);
         }
       } catch (e) {
-        // Still processing
       }
     }, 1500);
 
@@ -114,13 +110,11 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-      
-      {/* Top Breadcrumb Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
         <div className="flex items-center space-x-2">
           <button
             onClick={onBack}
-            className="flex items-center space-x-1.5 text-xs font-mono text-slate-700 hover:text-slate-900 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition shadow-2xs font-medium"
+            className="flex items-center space-x-1.5 text-xs font-mono text-slate-700 hover:text-slate-900 px-2.5 py-1.5 rounded bg-white border border-slate-200 hover:bg-slate-50 transition-colors font-medium focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-600"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Scenarios</span>
@@ -145,16 +139,14 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
         </div>
       </div>
 
-      {/* Final Verdict Banner (when available) */}
       {report && <VerdictBanner report={report} jobId={jobId} />}
 
-      {/* Main Split: Execution Stream (Left) and AST Blast Radius Graph (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <AgentTimeline events={events} />
         {impact ? (
           <DependencyGraph impact={impact} />
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 flex flex-col items-center justify-center text-center p-8 h-[520px] font-mono text-xs shadow-sm">
+          <div className="bg-white rounded-lg border border-slate-200 flex flex-col items-center justify-center text-center p-8 h-[520px] font-mono text-xs">
             <RefreshCw className="w-6 h-6 animate-spin text-blue-600 mb-3" />
             <span className="text-slate-800 font-bold">Constructing AST Call Graph...</span>
             <span className="text-[11px] text-slate-500 mt-1">Mapping callers and reachability</span>
@@ -162,14 +154,13 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
         )}
       </div>
 
-      {/* Inspection Tabs */}
       <div className="space-y-3 pt-1">
         <div className="flex items-center space-x-1.5 sm:space-x-2 border-b border-slate-200 pb-2 font-mono text-xs overflow-x-auto">
           <button
             onClick={() => setActiveTab('diff')}
-            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg transition font-medium flex-shrink-0 ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition-colors font-medium flex-shrink-0 ${
               activeTab === 'diff'
-                ? 'bg-slate-900 text-white shadow-xs'
+                ? 'bg-slate-900 text-white'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -180,9 +171,9 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
 
           <button
             onClick={() => setActiveTab('tests')}
-            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg transition font-medium flex-shrink-0 ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition-colors font-medium flex-shrink-0 ${
               activeTab === 'tests'
-                ? 'bg-slate-900 text-white shadow-xs'
+                ? 'bg-slate-900 text-white'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -193,9 +184,9 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
 
           <button
             onClick={() => setActiveTab('risks')}
-            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg transition font-medium flex-shrink-0 ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded transition-colors font-medium flex-shrink-0 ${
               activeTab === 'risks'
-                ? 'bg-slate-900 text-white shadow-xs'
+                ? 'bg-slate-900 text-white'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -211,7 +202,6 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ jobId, onBack,
           {activeTab === 'risks' && <ResidualRiskList risks={report?.residual_risk || []} />}
         </div>
       </div>
-
     </div>
   );
 };

@@ -7,7 +7,7 @@
     "actual_verdict": "VERIFIED_FIXED",
     "passed": true,
     "attempts": 1,
-    "duration_s": 9.6,
+    "duration_s": 0.85,
     "tokens": 530,
     "residual_risks": 7
   },
@@ -16,11 +16,11 @@
     "repo": "demo_repos/billing_ripple",
     "description": "Banker's rounding fix; regression caught on refunds.py before success",
     "expected_verdict": "VERIFIED_FIXED",
-    "actual_verdict": "VERIFIED_FIXED",
-    "passed": true,
-    "attempts": 2,
-    "duration_s": 13.62,
-    "tokens": 1350,
+    "actual_verdict": "FIXED_WITH_REGRESSIONS",
+    "passed": false,
+    "attempts": 3,
+    "duration_s": 0.7,
+    "tokens": 2120,
     "residual_risks": 14
   },
   {
@@ -31,7 +31,7 @@
     "actual_verdict": "UNFIXED",
     "passed": true,
     "attempts": 3,
-    "duration_s": 4.0,
+    "duration_s": 0.34,
     "tokens": 1560,
     "residual_risks": 4
   }

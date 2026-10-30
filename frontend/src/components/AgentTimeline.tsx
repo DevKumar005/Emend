@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AgentEvent } from '../types';
-import { Terminal, Wrench, CheckCircle, AlertOctagon, HelpCircle, ChevronDown, ChevronRight, ArrowDown, Copy, Check } from 'lucide-react';
+import { Terminal, ChevronDown, ChevronRight, ArrowDown, Copy, Check } from 'lucide-react';
 
 interface AgentTimelineProps {
   events: AgentEvent[];
@@ -72,10 +72,8 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
   });
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 flex flex-col h-[520px] shadow-sm">
-      
-      {/* Header Bar */}
-      <div className="flex items-center justify-between p-3.5 border-b border-slate-200 bg-slate-50/70 text-xs rounded-t-xl">
+    <div className="bg-white rounded-lg border border-slate-200 flex flex-col h-[520px]">
+      <div className="flex items-center justify-between p-3.5 border-b border-slate-200 bg-slate-50/70 text-xs rounded-t-lg">
         <div className="flex items-center space-x-2">
           <Terminal className="w-3.5 h-3.5 text-blue-600" />
           <span className="font-mono font-bold uppercase text-slate-800">
@@ -90,7 +88,7 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 rounded-lg px-2 py-1 text-xs font-mono focus:outline-none focus:border-blue-500 shadow-2xs"
+            className="bg-white border border-slate-200 text-slate-700 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-blue-500"
           >
             <option value="all">All Events</option>
             <option value="stage">Stages</option>
@@ -101,9 +99,9 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
 
           <button
             onClick={() => setAutoScroll(!autoScroll)}
-            className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg font-mono text-[11px] transition ${
+            className={`flex items-center space-x-1 px-2.5 py-1 rounded font-mono text-[11px] transition-colors ${
               autoScroll
-                ? 'bg-slate-900 text-white font-medium shadow-2xs'
+                ? 'bg-slate-900 text-white font-medium'
                 : 'text-slate-600 hover:text-slate-900 bg-slate-100'
             }`}
           >
@@ -113,7 +111,6 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
         </div>
       </div>
 
-      {/* Log Entries */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-1.5 font-mono text-xs">
         {filteredEvents.length === 0 ? (
           <div className="h-full flex items-center justify-center text-slate-400 text-xs">
@@ -128,7 +125,7 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
             return (
               <div
                 key={idx}
-                className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 hover:border-slate-300 transition-colors"
+                className="p-2.5 rounded bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors"
               >
                 <div className="flex items-start justify-between gap-1.5 sm:gap-2">
                   <div className="flex items-start space-x-1.5 sm:space-x-2 min-w-0 flex-1">
@@ -146,7 +143,7 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
                   {hasPayload && (
                     <button
                       onClick={() => toggleExpand(idx)}
-                      className="text-slate-500 hover:text-slate-800 text-[10px] flex items-center space-x-0.5 px-1.5 py-0.5 rounded bg-white border border-slate-200 flex-shrink-0 shadow-2xs"
+                      className="text-slate-500 hover:text-slate-800 text-[10px] flex items-center space-x-0.5 px-1.5 py-0.5 rounded bg-white border border-slate-200 flex-shrink-0"
                     >
                       <span>{isExpanded ? 'Less' : 'Data'}</span>
                       {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
@@ -166,7 +163,7 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
                         <span>{copiedIdx === idx ? 'Copied' : 'Copy'}</span>
                       </button>
                     </div>
-                    <pre className="p-2 rounded bg-slate-900 text-slate-100 text-[11px] overflow-x-auto whitespace-pre-wrap rounded-md">
+                    <pre className="p-2 rounded bg-slate-900 text-slate-100 text-[11px] overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(evt.payload, null, 2)}
                     </pre>
                   </div>
@@ -176,7 +173,6 @@ export const AgentTimeline: React.FC<AgentTimelineProps> = ({ events }) => {
           })
         )}
       </div>
-
     </div>
   );
 };
