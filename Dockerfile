@@ -43,4 +43,4 @@ EXPOSE 7860
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-CMD ["python", "-m", "uvicorn", "emend.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["sh", "-c", "exec uvicorn emend.api.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
