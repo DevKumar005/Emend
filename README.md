@@ -253,9 +253,11 @@ Emend includes native `vercel.json` configuration for one-click deployment:
 
 ## Authors & Credits
 
-Emend was created and engineered for the **Nebius x NVIDIA Global AI Hackathon** by:
-* **Anurag Kumar** — [@anuragkumar80](https://github.com/anuragkumar80) (Platform Architecture, FastAPI Backend, Orchestrator & React Frontend)
-* **Dev Kumar** — [@DevKumar005](https://github.com/DevKumar005) (Core Intelligence, Blast Radius Engine, Verification Loop & Benchmark Matrix)
+**Emend** was conceived, designed, and engineered by the following team for the **Nebius × NVIDIA Global AI Hackathon**:
+
+- **[Dev Kumar](https://github.com/DevKumar005)** *· Team Lead · Core Intelligence · Blast Radius Engine · Verification Loop · Benchmark Matrix*
+
+- **[Anurag Kumar](https://github.com/anuragkumar80)** *· Platform Architecture · FastAPI Backend · Orchestration · React Frontend*
 
 ---
 
