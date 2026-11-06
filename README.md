@@ -1,6 +1,5 @@
 # Emend
 
-> **Fix it. Prove it.**  
 > An autonomous code-repair agent that verifies its own work and tells you honestly what remains risky.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
